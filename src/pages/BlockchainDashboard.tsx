@@ -1,8 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Activity, AlertCircle, CheckCircle } from 'lucide-react';
+import { useSimulation } from '../context/SimulationContext';
 
 const BlockchainDashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const { state, verifyLatestVote } = useSimulation();
+
   const voteData = [
     { region: 'MH', votes: 2500 },
     { region: 'UP', votes: 3200 },
@@ -24,41 +29,34 @@ const BlockchainDashboard: React.FC = () => {
   ];
 
   const liveVotes = [
-    { hash: '0x7a9f4b2e...', timestamp: '14:23:45.234', region: 'MH-23', status: 'verified' },
-    { hash: '0x3c1d8f6a...', timestamp: '14:23:45.567', region: 'UP-45', status: 'verified' },
-    { hash: '0x9d4c1f8b...', timestamp: '14:23:45.891', region: 'DL-12', status: 'verified' },
-    { hash: '0x2e5a7c3f...', timestamp: '14:23:46.123', region: 'KA-67', status: 'verified' },
-    { hash: '0x6b8d9e4a...', timestamp: '14:23:46.456', region: 'TN-89', status: 'verified' },
-  ];
-
-  const nodes = [
-    { name: 'Election Commission', status: 'active', type: 'primary' },
-    { name: 'Supreme Court', status: 'active', type: 'validator' },
-    { name: 'Political Party 1', status: 'active', type: 'observer' },
-    { name: 'Political Party 2', status: 'active', type: 'observer' },
-    { name: 'University 1', status: 'active', type: 'auditor' },
-    { name: 'University 2', status: 'active', type: 'auditor' },
-    { name: 'NGO Observer 1', status: 'active', type: 'observer' },
-    { name: 'NGO Observer 2', status: 'active', type: 'observer' },
+    {
+      hash: state.voteReceipt?.hash ?? '0x7a9f4b2e...',
+      timestamp: state.voteReceipt?.createdAt ?? '14:23:45',
+      region: 'MH-23',
+      status: state.voteReceipt?.status === 'Verified' ? 'verified' : 'pending',
+    },
+    { hash: '0x3c1d8f6a...', timestamp: '14:23:45', region: 'UP-45', status: 'verified' },
+    { hash: '0x9d4c1f8b...', timestamp: '14:23:46', region: 'DL-12', status: 'verified' },
   ];
 
   return (
     <div className="dashboard-page">
-      {/* Key Metrics */}
       <div className="metrics-row">
         <div className="metric-card">
           <h3>Votes Recorded</h3>
-          <div className="metric-value">15,234,567</div>
+          <div className="metric-value">{state.totalVotesCast.toLocaleString()}</div>
           <div className="metric-trend positive">+2.3% from last hour</div>
         </div>
         <div className="metric-card">
           <h3>Votes Verified</h3>
-          <div className="metric-value">15,234,562</div>
-          <div className="metric-status verified">99.99%</div>
+          <div className="metric-value">{state.totalVotesVerified.toLocaleString()}</div>
+          <div className="metric-status verified">
+            {((state.totalVotesVerified / Math.max(state.totalVotesCast, 1)) * 100).toFixed(2)}%
+          </div>
         </div>
         <div className="metric-card">
           <h3>Duplicate Votes Detected</h3>
-          <div className="metric-value warning">5</div>
+          <div className="metric-value warning">{state.duplicateVotesDetected}</div>
           <div className="metric-icon">
             <AlertCircle size={24} color="#F57C00" />
           </div>
@@ -72,8 +70,20 @@ const BlockchainDashboard: React.FC = () => {
         </div>
       </div>
 
+      <div className="dashboard-actions">
+        <button
+          className="confirm-button"
+          onClick={() => verifyLatestVote()}
+          disabled={!state.voteReceipt || state.voteReceipt.status === 'Verified'}
+        >
+          Verify Latest Pending Vote
+        </button>
+        <button className="cancel-button" onClick={() => navigate('/governance')}>
+          Open Governance Network
+        </button>
+      </div>
+
       <div className="dashboard-grid">
-        {/* Live Vote Stream */}
         <div className="dashboard-panel live-stream">
           <div className="panel-header">
             <h3>Live Vote Stream</h3>
@@ -86,14 +96,15 @@ const BlockchainDashboard: React.FC = () => {
                 <div className="vote-meta">
                   <span className="vote-timestamp">{vote.timestamp}</span>
                   <span className="vote-region">{vote.region}</span>
-                  <span className="vote-status verified">✓ Verified</span>
+                  <span className={`vote-status ${vote.status === 'verified' ? 'verified' : 'pending'}`}>
+                    {vote.status === 'verified' ? '✓ Verified' : 'Pending'}
+                  </span>
                 </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Blockchain Blocks */}
         <div className="dashboard-panel blocks-panel">
           <div className="panel-header">
             <h3>Blockchain Blocks</h3>
@@ -110,25 +121,32 @@ const BlockchainDashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Distributed Nodes */}
         <div className="dashboard-panel nodes-panel">
           <div className="panel-header">
             <h3>Validator Nodes</h3>
-            <span className="nodes-count">8/8 Online</span>
+            <span className="nodes-count">{state.nodesOnline}/{state.totalNodes} Online</span>
           </div>
           <div className="nodes-grid">
-            {nodes.map((node, index) => (
-              <div key={index} className={`node-item ${node.type}`}>
+            {[
+              'Election Commission',
+              'Supreme Court',
+              'Political Party 1',
+              'Political Party 2',
+              'University 1',
+              'University 2',
+              'NGO Observer 1',
+              'NGO Observer 2',
+            ].map((nodeName) => (
+              <div key={nodeName} className="node-item observer">
                 <div className="node-status active"></div>
-                <div className="node-name">{node.name}</div>
-                <div className="node-type">{node.type}</div>
+                <div className="node-name">{nodeName}</div>
+                <div className="node-type">validator</div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Analytics Charts */}
       <div className="charts-grid">
         <div className="chart-panel">
           <h3>Votes Per Region</h3>

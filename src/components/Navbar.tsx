@@ -1,16 +1,21 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Settings, User } from 'lucide-react';
+import { useSimulation } from '../context/SimulationContext';
 
 const Navbar: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { addAuditLog } = useSimulation();
 
   const navItems = [
     { path: '/', label: 'Dashboard' },
+    { path: '/verification', label: 'Biometric' },
+    { path: '/voting', label: 'Ballot' },
     { path: '/voting-status', label: 'Voting Status' },
     { path: '/results', label: 'Results' },
     { path: '/audit-trail', label: 'Audit Trail' },
-    { path: '/help', label: 'Help' },
+    { path: '/simulator', label: 'Simulator' },
   ];
 
   return (
@@ -25,11 +30,9 @@ const Navbar: React.FC = () => {
           </div>
           <div className="site-title">
             <span className="title-main">VoteRaakshak</span>
-            <span className="title-divider">|</span>
-            <span className="title-sub">Election Commission of India</span>
           </div>
         </div>
-        
+
         <div className="navbar-center">
           {navItems.map((item) => (
             <Link
@@ -43,13 +46,31 @@ const Navbar: React.FC = () => {
         </div>
 
         <div className="navbar-right">
-          <button className="icon-button">
+          <button
+            className="icon-button"
+            onClick={() => {
+              addAuditLog('info', 'Notifications checked by admin console.');
+              navigate('/audit-trail');
+            }}
+            title="View alerts"
+          >
             <Bell size={20} />
           </button>
-          <button className="icon-button">
+          <button
+            className="icon-button"
+            onClick={() => {
+              addAuditLog('info', 'Governance settings opened.');
+              navigate('/governance');
+            }}
+            title="Open governance settings"
+          >
             <Settings size={20} />
           </button>
-          <button className="icon-button">
+          <button
+            className="icon-button"
+            onClick={() => navigate('/simulator')}
+            title="Open voter session simulator"
+          >
             <User size={20} />
           </button>
         </div>

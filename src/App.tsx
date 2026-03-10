@@ -8,27 +8,32 @@ import BlockchainDashboard from './pages/BlockchainDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import GovernanceNetwork from './pages/GovernanceNetwork';
 import ResultsPage from './pages/ResultsPage';
+import VotingSimulator from './pages/VotingSimulator';
+import { SimulationProvider } from './context/SimulationContext';
 import './App.css';
 
 function App() {
   return (
-    <Router>
-      <div className="App">
-        <Navbar />
-        <main className="main-content">
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/verification" element={<EVMBiometric />} />
-            <Route path="/voting" element={<VotingBallot />} />
-            <Route path="/voting-status" element={<BlockchainDashboard />} />
-            <Route path="/audit-trail" element={<AdminDashboard />} />
-            <Route path="/governance" element={<GovernanceNetwork />} />
-            <Route path="/results" element={<ResultsPage />} />
-            <Route path="/help" element={<LandingPage />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+    <SimulationProvider>
+      <Router>
+        <div className="App">
+          <Navbar />
+          <main className="main-content">
+            <Routes>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/verification" element={<EVMBiometric />} />
+              <Route path="/voting" element={<VotingBallot />} />
+              <Route path="/voting-status" element={<BlockchainDashboard />} />
+              <Route path="/audit-trail" element={<AdminDashboard />} />
+              <Route path="/governance" element={<GovernanceNetwork />} />
+              <Route path="/results" element={<ResultsPage />} />
+              <Route path="/simulator" element={<VotingSimulator />} />
+              <Route path="/help" element={<VotingSimulator />} />
+            </Routes>
+          </main>
+        </div>
+      </Router>
+    </SimulationProvider>
   );
 }
 

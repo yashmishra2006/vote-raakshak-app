@@ -1,8 +1,13 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { CheckCircle, Download, ExternalLink } from 'lucide-react';
+import { useSimulation } from '../context/SimulationContext';
 
 const ResultsPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { state, addAuditLog, exportAuditLog } = useSimulation();
+
   const voteData = [
     { name: 'National Progress Party', value: 42.3, votes: 285678901, seats: 245, color: '#1565C0', candidate: 'Rajesh Kumar' },
     { name: 'Democratic Alliance', value: 31.8, votes: 214645876, seats: 182, color: '#2E7D32', candidate: 'Priya Sharma' },
@@ -12,6 +17,34 @@ const ResultsPage: React.FC = () => {
   ];
 
   const totalVotes = voteData.reduce((sum, item) => sum + item.votes, 0);
+
+  const downloadVoteSnapshot = () => {
+    const payload = {
+      generatedAt: new Date().toISOString(),
+      network: {
+        nodesOnline: state.nodesOnline,
+        totalNodes: state.totalNodes,
+        consensusHealthy: state.consensusHealthy,
+      },
+      latestVote: state.voteReceipt,
+      totals: {
+        cast: state.totalVotesCast,
+        verified: state.totalVotesVerified,
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `election-snapshot-${Date.now()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    addAuditLog('info', 'Election snapshot JSON downloaded.');
+  };
+
   return (
     <div className="results-page">
       <div className="results-header">
@@ -20,12 +53,11 @@ const ResultsPage: React.FC = () => {
           <CheckCircle size={32} color="#2E7D32" />
           <div>
             <div className="badge-title">All Votes Cryptographically Verified</div>
-            <div className="badge-subtitle">Verified by 12 Independent Nodes</div>
+            <div className="badge-subtitle">Verified by {state.totalNodes} Independent Nodes</div>
           </div>
         </div>
       </div>
 
-      {/* Summary Statistics */}
       <div className="summary-grid">
         <div className="summary-card">
           <div className="summary-label">Registered Voters</div>
@@ -37,8 +69,8 @@ const ResultsPage: React.FC = () => {
           <div className="summary-subtitle">75% Turnout</div>
         </div>
         <div className="summary-card">
-          <div className="summary-label">Valid Votes</div>
-          <div className="summary-value">{(totalVotes - 5).toLocaleString()}</div>
+          <div className="summary-label">Runtime Vote Counter</div>
+          <div className="summary-value">{state.totalVotesCast.toLocaleString()}</div>
         </div>
         <div className="summary-card">
           <div className="summary-label">Blockchain Blocks</div>
@@ -46,12 +78,11 @@ const ResultsPage: React.FC = () => {
         </div>
         <div className="summary-card verified">
           <div className="summary-label">Verification Status</div>
-          <div className="summary-value">100%</div>
+          <div className="summary-value">{((state.totalVotesVerified / Math.max(state.totalVotesCast, 1)) * 100).toFixed(2)}%</div>
           <div className="summary-subtitle success">Complete</div>
         </div>
       </div>
 
-      {/* Results Visualization */}
       <div className="results-content">
         <div className="chart-section">
           <h2>Vote Distribution</h2>
@@ -71,7 +102,7 @@ const ResultsPage: React.FC = () => {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value) => value ? `${value}%` : ''} />
+              <Tooltip formatter={(value) => (value ? `${value}%` : '')} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -89,7 +120,7 @@ const ResultsPage: React.FC = () => {
             </div>
             <div className="info-row">
               <span className="info-label">Final Block Hash:</span>
-              <span className="info-value mono">0xa9f7e3c2...</span>
+              <span className="info-value mono">{state.voteReceipt?.hash ?? '0xa9f7e3c2...'}</span>
             </div>
             <div className="info-row">
               <span className="info-label">Merkle Root:</span>
@@ -104,19 +135,24 @@ const ResultsPage: React.FC = () => {
             <div className="info-row">
               <span className="info-label">Validator Consensus:</span>
               <span className="status-badge verified">
-                <CheckCircle size={14} /> 12/12 Nodes
+                <CheckCircle size={14} /> {state.nodesOnline}/{state.totalNodes} Nodes
               </span>
             </div>
           </div>
-          
-          <button className="verify-button">
+
+          <button
+            className="verify-button"
+            onClick={() => {
+              addAuditLog('success', 'Election integrity verification requested from dashboard.');
+              navigate('/voting-status');
+            }}
+          >
             <ExternalLink size={18} />
             Verify Election Integrity
           </button>
         </div>
       </div>
 
-      {/* Results Table */}
       <div className="results-table-section">
         <h2>Detailed Results by Party</h2>
         <table className="results-table">
@@ -149,23 +185,28 @@ const ResultsPage: React.FC = () => {
         </table>
       </div>
 
-      {/* Transparency Links */}
       <div className="transparency-section">
         <h3>Transparency & Audit</h3>
         <div className="links-grid">
-          <button className="link-button">
+          <button className="link-button" onClick={() => navigate('/voting-status')}>
             <ExternalLink size={18} />
             View Full Blockchain Explorer
           </button>
-          <button className="link-button">
+          <button className="link-button" onClick={downloadVoteSnapshot}>
             <Download size={18} />
             Download Raw Vote Data
           </button>
-          <button className="link-button">
+          <button className="link-button" onClick={exportAuditLog}>
             <Download size={18} />
             Audit Trail Report
           </button>
-          <button className="link-button">
+          <button
+            className="link-button"
+            onClick={() => {
+              addAuditLog('info', 'International observer report panel opened.');
+              navigate('/governance');
+            }}
+          >
             <ExternalLink size={18} />
             International Observer Reports
           </button>

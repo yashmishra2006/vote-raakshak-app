@@ -1,16 +1,30 @@
 import React from 'react';
-import { Fingerprint, Vote, Network, Shield, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Fingerprint, Vote, Network, Shield, Lock, PlayCircle } from 'lucide-react';
+import { useSimulation } from '../context/SimulationContext';
 
 const LandingPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { state } = useSimulation();
+
   return (
     <div className="landing-page">
-      {/* Hero Section */}
       <section className="hero-section">
         <h1 className="hero-title">Decentralized Biometric Voting Infrastructure</h1>
         <p className="hero-subtitle">
           <span>Secure</span> • <span>Transparent</span> • <span>Tamper-proof elections powered by blockchain and biometrics</span>
         </p>
-        
+
+        <div className="hero-actions">
+          <button className="hero-button primary" onClick={() => navigate('/verification')}>
+            Start Voter Verification
+          </button>
+          <button className="hero-button secondary" onClick={() => navigate('/simulator')}>
+            <PlayCircle size={18} />
+            Simulate Full Voting Process
+          </button>
+        </div>
+
         <div className="process-flow">
           <div className="flow-item">
             <div className="flow-icon">
@@ -59,7 +73,6 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="features-section">
         <h2 className="section-title">System Features</h2>
         <div className="features-grid">
@@ -118,12 +131,11 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Live Metrics Section */}
       <section className="metrics-section">
         <h2 className="section-title">Live Election Transparency Metrics</h2>
         <div className="metrics-grid">
           <div className="metric-card">
-            <div className="metric-value">15,234,567</div>
+            <div className="metric-value">{state.totalVotesCast.toLocaleString()}</div>
             <div className="metric-label">Total Votes Cast</div>
           </div>
           <div className="metric-card">
@@ -135,7 +147,9 @@ const LandingPage: React.FC = () => {
             <div className="metric-label">Blockchain Blocks Created</div>
           </div>
           <div className="metric-card">
-            <div className="metric-value status-verified">99.98%</div>
+            <div className="metric-value status-verified">
+              {((state.totalVotesVerified / Math.max(state.totalVotesCast, 1)) * 100).toFixed(2)}%
+            </div>
             <div className="metric-label">Verification Status</div>
           </div>
         </div>

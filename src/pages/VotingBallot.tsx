@@ -1,39 +1,46 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Clock } from 'lucide-react';
-
-interface Candidate {
-  id: number;
-  name: string;
-  party: string;
-  color: string;
-  photo: string;
-}
+import { useSimulation } from '../context/SimulationContext';
 
 const VotingBallot: React.FC = () => {
-  const [selectedCandidate, setSelectedCandidate] = useState<number | null>(null);
-  const [voteConfirmed, setVoteConfirmed] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(165); // 2:45 in seconds
+  const navigate = useNavigate();
+  const { state, candidates, selectCandidate, castVote, verifyLatestVote } = useSimulation();
+  const [timeRemaining, setTimeRemaining] = useState(165);
 
-  const candidates: Candidate[] = [
-    { id: 1, name: 'Rajesh Kumar', party: 'National Progress Party', color: '#1565C0', photo: '👨‍💼' },
-    { id: 2, name: 'Priya Sharma', party: 'Democratic Alliance', color: '#2E7D32', photo: '👩‍💼' },
-    { id: 3, name: 'Arun Patel', party: "People's Front", color: '#F57C00', photo: '👨‍💼' },
-    { id: 4, name: 'Meera Singh', party: 'Unity Party', color: '#7B1FA2', photo: '👩‍💼' },
-    { id: 5, name: 'Vijay Reddy', party: 'Reform Coalition', color: '#C62828', photo: '👨‍💼' },
-  ];
-
-  const handleConfirmVote = () => {
-    if (selectedCandidate) {
-      setVoteConfirmed(true);
+  useEffect(() => {
+    if (!state.ballotUnlocked) {
+      navigate('/verification');
     }
-  };
+  }, [navigate, state.ballotUnlocked]);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (state.voteRecorded) {
+      return undefined;
+    }
+
     const timer = setInterval(() => {
       setTimeRemaining((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
+
     return () => clearInterval(timer);
-  }, []);
+  }, [state.voteRecorded]);
+
+  useEffect(() => {
+    if (state.voteRecorded && state.voteReceipt?.status !== 'Verified') {
+      const verifyTimeout = setTimeout(() => {
+        verifyLatestVote();
+      }, 2500);
+
+      return () => clearTimeout(verifyTimeout);
+    }
+
+    return undefined;
+  }, [state.voteReceipt?.status, state.voteRecorded, verifyLatestVote]);
+
+  const handleConfirmVote = () => {
+    castVote();
+  };
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -41,7 +48,7 @@ const VotingBallot: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  if (voteConfirmed) {
+  if (state.voteRecorded && state.voteReceipt) {
     return (
       <div className="voting-page">
         <div className="confirmation-modal">
@@ -50,24 +57,32 @@ const VotingBallot: React.FC = () => {
           <div className="vote-details">
             <div className="detail-row">
               <span className="detail-label">Ballot Token:</span>
-              <span className="detail-value">VT-2026-15234568</span>
+              <span className="detail-value">{state.voteReceipt.token}</span>
             </div>
             <div className="detail-row">
               <span className="detail-label">Vote Encrypted:</span>
-              <span className="detail-value">AES-256</span>
+              <span className="detail-value">{state.voteReceipt.encryptedWith}</span>
             </div>
             <div className="detail-row">
               <span className="detail-label">Blockchain Hash:</span>
-              <span className="detail-value">0x7a9f4b2e3c1d8f6a...</span>
+              <span className="detail-value">{state.voteReceipt.hash}</span>
             </div>
             <div className="detail-row status-row">
               <span className="detail-label">Status:</span>
-              <span className="status-badge">Pending Verification</span>
+              <span className="status-badge">{state.voteReceipt.status}</span>
             </div>
           </div>
           <p className="confirmation-message">
-            Your vote has been securely recorded and encrypted. It will be verified by the blockchain network within the next few minutes.
+            Your vote has been securely recorded and encrypted. It is being validated by the blockchain network.
           </p>
+          <div className="voting-actions confirmation-actions">
+            <button className="cancel-button" onClick={() => navigate('/')}>
+              Close &amp; Return to Home
+            </button>
+            <button className="confirm-button" onClick={() => navigate('/voting-status')}>
+              View Verification Status
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -88,8 +103,8 @@ const VotingBallot: React.FC = () => {
           {candidates.map((candidate) => (
             <div
               key={candidate.id}
-              className={`candidate-card ${selectedCandidate === candidate.id ? 'selected' : ''}`}
-              onClick={() => setSelectedCandidate(candidate.id)}
+              className={`candidate-card ${state.selectedCandidateId === candidate.id ? 'selected' : ''}`}
+              onClick={() => selectCandidate(candidate.id)}
             >
               <div className="candidate-info">
                 <div className="party-logo" style={{ backgroundColor: candidate.color }}>
@@ -102,12 +117,13 @@ const VotingBallot: React.FC = () => {
                 </div>
               </div>
               <button
-                className={`select-button ${selectedCandidate === candidate.id ? 'selected' : ''}`}
+                className={`select-button ${state.selectedCandidateId === candidate.id ? 'selected' : ''}`}
                 style={{
-                  backgroundColor: selectedCandidate === candidate.id ? candidate.color : undefined,
+                  backgroundColor: state.selectedCandidateId === candidate.id ? candidate.color : undefined,
                 }}
+                type="button"
               >
-                {selectedCandidate === candidate.id ? 'SELECTED ✓' : 'SELECT'}
+                {state.selectedCandidateId === candidate.id ? 'SELECTED ✓' : 'SELECT'}
               </button>
             </div>
           ))}
@@ -116,12 +132,12 @@ const VotingBallot: React.FC = () => {
         <div className="voting-actions">
           <button
             className="confirm-button"
-            disabled={!selectedCandidate}
+            disabled={!state.selectedCandidateId}
             onClick={handleConfirmVote}
           >
             Confirm Vote
           </button>
-          <button className="cancel-button" onClick={() => setSelectedCandidate(null)}>
+          <button className="cancel-button" onClick={() => selectCandidate(null)}>
             Cancel
           </button>
         </div>
