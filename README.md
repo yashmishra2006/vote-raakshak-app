@@ -69,6 +69,7 @@ App default URL: `http://localhost:3000`
 
 - `.env` is currently empty.
 - No required environment variables for local run at this time.
+- Vercel build uses `CI=false` via `vercel.json` so lint warnings do not fail deployment builds.
 
 If you later add API integrations, document each variable in this section with:
 - variable name
@@ -148,4 +149,3 @@ src/
 - Add role-based authentication and authorization
 - Add automated integration tests for full voting flow
 - Add deployment docs (Docker + CI/CD)
-
