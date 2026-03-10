@@ -1,5 +1,5 @@
 import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { CheckCircle, Download, ExternalLink } from 'lucide-react';
 
 const ResultsPage: React.FC = () => {
@@ -12,8 +12,6 @@ const ResultsPage: React.FC = () => {
   ];
 
   const totalVotes = voteData.reduce((sum, item) => sum + item.votes, 0);
-  const winner = voteData[0];
-
   return (
     <div className="results-page">
       <div className="results-header">

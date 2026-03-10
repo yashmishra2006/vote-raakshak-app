@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle, Activity } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 
 interface Node {
   id: number;
