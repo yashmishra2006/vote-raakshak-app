@@ -1,25 +1,34 @@
 import React from 'react';
-import logo from './logo.svg';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import LandingPage from './pages/LandingPage';
+import EVMBiometric from './pages/EVMBiometric';
+import VotingBallot from './pages/VotingBallot';
+import BlockchainDashboard from './pages/BlockchainDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+import GovernanceNetwork from './pages/GovernanceNetwork';
+import ResultsPage from './pages/ResultsPage';
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        <Navbar />
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/verification" element={<EVMBiometric />} />
+            <Route path="/voting" element={<VotingBallot />} />
+            <Route path="/voting-status" element={<BlockchainDashboard />} />
+            <Route path="/audit-trail" element={<AdminDashboard />} />
+            <Route path="/governance" element={<GovernanceNetwork />} />
+            <Route path="/results" element={<ResultsPage />} />
+            <Route path="/help" element={<LandingPage />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
 }
 

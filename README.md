@@ -1,6 +1,45 @@
-# Getting Started with Create React App
+# VoteRaakshak - Blockchain Biometric Voting System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, professional React web application for a blockchain-backed biometric voting system designed for national elections.
+
+## Features
+
+- **Light Theme Design**: Professional government-grade interface with clean aesthetics
+- **7 Complete Screens**:
+  1. Landing Page - System overview with features and live metrics
+  2. EVM Biometric Interface - Fingerprint scanning and voter verification
+  3. Voting Ballot - Candidate selection and vote confirmation
+  4. Blockchain Dashboard - Real-time vote monitoring and analytics
+  5. Admin Dashboard - Duplicate vote detection and security monitoring
+  6. Governance Network - Distributed validator node visualization
+  7. Results Page - Final election results with cryptographic verification
+
+## Technology Stack
+
+- **React 18** with TypeScript
+- **React Router** for navigation
+- **Recharts** for data visualization
+- **Lucide React** for icons
+- **Custom CSS** for professional styling
+
+## Color Scheme
+
+- Background: `#F5F7F9` (Light gray)
+- Primary: `#003D82` (Government blue)
+- Success: `#2E7D32` (Professional green)
+- Warning: `#F57C00` (Orange)
+
+## Installation & Running
+
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+```
+
+The application will open at `http://localhost:3000`
 
 ## Available Scripts
 
