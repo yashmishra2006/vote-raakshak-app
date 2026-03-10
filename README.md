@@ -1,85 +1,151 @@
-# VoteRaakshak - Blockchain Biometric Voting System
+# VoteRaakshak App
 
-A modern, professional React web application for a blockchain-backed biometric voting system designed for national elections.
+A React + TypeScript simulation of a secure digital voting workflow with biometric verification, ballot casting, audit trail, governance monitoring, and result visualization.
 
-## Features
+## 1. Project Scope
 
-- **Light Theme Design**: Professional government-grade interface with clean aesthetics
-- **7 Complete Screens**:
-  1. Landing Page - System overview with features and live metrics
-  2. EVM Biometric Interface - Fingerprint scanning and voter verification
-  3. Voting Ballot - Candidate selection and vote confirmation
-  4. Blockchain Dashboard - Real-time vote monitoring and analytics
-  5. Admin Dashboard - Duplicate vote detection and security monitoring
-  6. Governance Network - Distributed validator node visualization
-  7. Results Page - Final election results with cryptographic verification
+This project is a **simulation/demo UI** for election technology workflows. It is not a production election system and does not integrate with real voter databases, biometric devices, or blockchain networks.
 
-## Technology Stack
+## 2. Features
 
-- **React 18** with TypeScript
-- **React Router** for navigation
-- **Recharts** for data visualization
-- **Lucide React** for icons
-- **Custom CSS** for professional styling
+- Landing dashboard with election system overview
+- Biometric verification flow (simulated)
+- Ballot selection and vote confirmation flow
+- Voting status dashboard with charted metrics
+- Audit trail and admin security panel
+- Governance network view
+- Result summary and charts
+- End-to-end simulator page linking all modules
 
-## Color Scheme
+## 3. Tech Stack
 
-- Background: `#F5F7F9` (Light gray)
-- Primary: `#003D82` (Government blue)
-- Success: `#2E7D32` (Professional green)
-- Warning: `#F57C00` (Orange)
+- React
+- TypeScript
+- React Router
+- Recharts
+- Lucide React icons
+- Create React App tooling (`react-scripts`)
 
-## Installation & Running
+## 4. System Requirements
+
+- Node.js `>=18` (LTS recommended)
+- npm `>=9`
+- OS: Linux/macOS/Windows
+
+## 5. Installation
 
 ```bash
-# Install dependencies
 npm install
-
-# Start development server
-npm start
 ```
 
-The application will open at `http://localhost:3000`
+### Important: Use one package manager only
 
-## Available Scripts
+This repo currently includes both `package-lock.json` and `pnpm-lock.yaml`.
+To avoid dependency conflicts (including ESLint plugin conflicts), use only one manager per install.
 
-In the project directory, you can run:
+Recommended for this repo:
 
-### `npm start`
+```bash
+rm -rf node_modules
+npm ci
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## 6. Run Commands
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+# start dev server
+npm start
 
-### `npm test`
+# production build
+npm run build
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# tests
+npm test
+```
 
-### `npm run build`
+App default URL: `http://localhost:3000`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## 7. Environment Variables
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- `.env` is currently empty.
+- No required environment variables for local run at this time.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+If you later add API integrations, document each variable in this section with:
+- variable name
+- required/optional status
+- example value format
 
-### `npm run eject`
+## 8. Routes / Screens
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- `/` -> Landing page
+- `/verification` -> Biometric verification
+- `/voting` -> Voting ballot
+- `/voting-status` -> Blockchain/status dashboard
+- `/audit-trail` -> Admin audit panel
+- `/governance` -> Governance network
+- `/results` -> Election results
+- `/simulator` -> Voting simulator
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 9. Project Structure
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```text
+src/
+  components/
+    Navbar.tsx
+  context/
+    SimulationContext.tsx
+  pages/
+    LandingPage.tsx
+    EVMBiometric.tsx
+    VotingBallot.tsx
+    BlockchainDashboard.tsx
+    AdminDashboard.tsx
+    GovernanceNetwork.tsx
+    ResultsPage.tsx
+    VotingSimulator.tsx
+  App.tsx
+  App.css
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## 10. Resources and References
 
-## Learn More
+### A. Official Documentation / Repositories
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- React docs: https://react.dev/
+- TypeScript docs: https://www.typescriptlang.org/docs/
+- React Router docs: https://reactrouter.com/
+- Recharts docs: https://recharts.org/en-US/
+- Lucide React docs: https://lucide.dev/guide/packages/lucide-react
+- Create React App docs: https://create-react-app.dev/
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### B. Web/API References Used in Implementation Concepts
+
+- Clipboard API (used for copy-to-clipboard interactions): https://developer.mozilla.org/docs/Web/API/Clipboard_API
+- Web Crypto API (relevant for cryptographic hashing/signature simulation): https://developer.mozilla.org/docs/Web/API/Web_Crypto_API
+
+### C. Research and Background Reading
+
+- Satoshi Nakamoto, *Bitcoin: A Peer-to-Peer Electronic Cash System* (2008)  
+  https://bitcoin.org/bitcoin.pdf
+- Ben Adida, *Helios: Web-based Open-Audit Voting* (USENIX Security, 2008)
+
+### D. Governance / Domain Context
+
+- Election Commission of India (context/reference): https://www.eci.gov.in/
+
+## 11. Current Limitations
+
+- Simulation data is in-memory (no persistent backend)
+- No real biometric device integration
+- No real blockchain node integration
+- No production-grade identity verification
+- Not audited for real election deployment
+
+## 12. Suggested Next Steps
+
+- Add backend services for persistence and audit logs
+- Add cryptographic proof verification pipeline
+- Add role-based authentication and authorization
+- Add automated integration tests for full voting flow
+- Add deployment docs (Docker + CI/CD)
+
